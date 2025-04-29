@@ -32,6 +32,12 @@ function DynamicSidebar({ mode, setUrl, inputValue, setInputValue }) {
         <button onClick={() => setUrl('https://www.29cm.co.kr/')}>
           29CM
         </button>
+        <button onClick={() => setUrl('https://zigzag.kr/')}>
+          지그재그
+        </button>
+        <button onClick={() => setUrl('https://display.wconcept.co.kr/rn/women')}>
+          W CONCEPT
+        </button>
       </div>
     )
   }
