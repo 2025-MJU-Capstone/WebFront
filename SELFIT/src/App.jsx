@@ -2,8 +2,8 @@ import { useState } from 'react'
 import './App.css'
 import LeftSidebar from './components/LeftSidebar'
 import DynamicSidebar from './components/DynamicSidebar'
-import Store from './components/Store'
-import Main from './components/Main'
+import Store from './pages/Store'
+import Main from './pages/Main'
 
 function App() {
   const [mode, setMode] = useState('main') 
