@@ -5,6 +5,8 @@ function DynamicSidebar({ mode, setUrl, inputValue, setInputValue }) {
   const navigate = useNavigate()
   const [gender, setGender] = useState('') // 성별 상태
   const [clothes, setClothes] = useState('') // 상의 하의
+  const [image, setImage] = useState(null)
+  const dropRef = useRef()
   const width = '400px'
 
   const inputStyle = {
@@ -17,46 +19,45 @@ function DynamicSidebar({ mode, setUrl, inputValue, setInputValue }) {
     boxSizing: 'border-box'
   }
 
+  useEffect(() => {
+    if (mode !== 'iframe') return
+
+    const handlePaste = (e) => {
+      const items = e.clipboardData.items
+      for (const item of items) {
+        if (item.type.indexOf('image') !== -1) {
+          const blob = item.getAsFile()
+          const url = URL.createObjectURL(blob)
+          setImage(url)
+        }
+      }
+    }
+
+    window.addEventListener('paste', handlePaste)
+    return () => window.removeEventListener('paste', handlePaste)
+  }, [mode])
+
   const handleSiteClick = (siteUrl) => {
     setUrl(siteUrl)
     navigate('/store')
   }
 
+  const handleDrop = (e) => {
+    if (mode !== 'iframe') return
+    e.preventDefault()
+    const file = e.dataTransfer.files[0]
+    if (file && file.type.startsWith('image/')) {
+      const url = URL.createObjectURL(file)
+      setImage(url)
+    }
+  }
+
+  const handleDragOver = (e) => {
+    if (mode !== 'iframe') return
+    e.preventDefault()
+  }
+
   if (mode === 'iframe') {
-    const [image, setImage] = useState(null)
-    const dropRef = useRef()
-
-    // 클립보드 붙여넣기 이벤트 처리
-    useEffect(() => {
-      const handlePaste = (e) => {
-        const items = e.clipboardData.items
-        for (const item of items) {
-          if (item.type.indexOf('image') !== -1) {
-            const blob = item.getAsFile()
-            const url = URL.createObjectURL(blob)
-            setImage(url)
-          }
-        }
-      }
-
-      window.addEventListener('paste', handlePaste)
-      return () => window.removeEventListener('paste', handlePaste)
-    }, [])
-
-    // 드래그 앤 드롭 이벤트 처리
-    const handleDrop = (e) => {
-      e.preventDefault()
-      const file = e.dataTransfer.files[0]
-      if (file && file.type.startsWith('image/')) {
-        const url = URL.createObjectURL(file)
-        setImage(url)
-      }
-    }
-
-    const handleDragOver = (e) => {
-      e.preventDefault()
-    }
-
     return (
       <div style={{
         width,
