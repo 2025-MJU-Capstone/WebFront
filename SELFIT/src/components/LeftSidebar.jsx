@@ -1,4 +1,4 @@
-import { Link } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 import { useState } from 'react';
 import Body from "../assets/Body.svg"
 import Closet from "../assets/Closet.svg"
@@ -11,6 +11,8 @@ import sSetting from "../assets/select_Setting.svg"
 
 function LeftSidebar({ setMode }) {
   const [selectedButton, setSelectedButton] = useState(null);
+  const navigate = useNavigate(); 
+
   return (
     <div style={{
       width: '70px',
@@ -25,45 +27,52 @@ function LeftSidebar({ setMode }) {
       <h3>메뉴</h3>
       
       <img
-          src={selectedButton === 'body' ? sBody : Body}
-          alt="Body"
-          width="40px"
-          style={{ cursor: "pointer" }}
-          onClick={() => {
-            setSelectedButton('body');
-            setMode('input')
-          }}
-        />
+        src={selectedButton === 'body' ? sBody : Body}
+        alt="Body"
+        width="40px"
+        style={{ cursor: "pointer" }}
+        onClick={() => {
+          setSelectedButton('body');
+          setMode('input');
+          navigate('/'); //  홈으로 이동 (Main)
+        }}
+      />
+
       <img
-          src={selectedButton === 'search' ? sSearch : Search}
-          alt="Store"
-          width="40px"
-          style={{ cursor: "pointer" }}
-          onClick={() => {
-            setSelectedButton('search');
-            setMode('iframe')
-          }}
-        />
-       <img
-          src={selectedButton === 'closet' ? sCloset : Closet}
-          alt="Closet"
-          width="40px"
-          style={{ cursor: "pointer" }}
-          onClick={() => {
-            setSelectedButton('closet');
-            setMode('somethingElse')
-          }}
-        /> 
+        src={selectedButton === 'search' ? sSearch : Search}
+        alt="Store"
+        width="40px"
+        style={{ cursor: "pointer" }}
+        onClick={() => {
+          setSelectedButton('search');
+          setMode('iframe');
+          navigate('/store'); // store 페이지로 이동
+        }}
+      />
+
       <img
-          src={selectedButton === 'setting' ? sSetting : Setting}
-          alt="Setting"
-          width="40px"
-          style={{ cursor: "pointer" }}
-          onClick={() => {
-            setSelectedButton('setting');
-            setMode('anotherThing')
-          }}
-        />
+        src={selectedButton === 'closet' ? sCloset : Closet}
+        alt="Closet"
+        width="40px"
+        style={{ cursor: "pointer" }}
+        onClick={() => {
+          setSelectedButton('closet');
+          setMode('somethingElse');
+          navigate('/closet'); // 나중에 구현할 경로
+        }}
+      /> 
+
+      <img
+        src={selectedButton === 'setting' ? sSetting : Setting}
+        alt="Setting"
+        width="40px"
+        style={{ cursor: "pointer" }}
+        onClick={() => {
+          setSelectedButton('setting');
+          setMode('anotherThing');
+          navigate('/setting'); // 나중에 구현할 경로
+        }}
+      />
     </div>
   )
 }
