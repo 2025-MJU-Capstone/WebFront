@@ -1,9 +1,10 @@
-import { useState } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 
 function DynamicSidebar({ mode, setUrl, inputValue, setInputValue }) {
   const navigate = useNavigate()
   const [gender, setGender] = useState('') // 성별 상태
+  const [clothes, setClothes] = useState('') // 상의 하의
   const width = '400px'
 
   const inputStyle = {
@@ -21,35 +22,114 @@ function DynamicSidebar({ mode, setUrl, inputValue, setInputValue }) {
     navigate('/store')
   }
 
-  // if (mode === 'iframe') {
-  //   return (
-  //     <div style={{
-  //       width,
-  //       background: '#ffffff',
-  //       color: 'white',
-  //       padding: '1rem',
-  //       display: 'flex',
-  //       flexDirection: 'column',
-  //       gap: '1rem',
-  //       boxSizing: 'border-box',
-  //       boxShadow: 'inset 6px 0px 0px rgba(0, 0, 0, 0.1)'
-  //     }}>
-  //       <h2>사이트 목록</h2>
-  //       <button onClick={() => handleSiteClick('https://www.musinsa.com/main/musinsa/recommend?gf=A')}>
-  //         무신사
-  //       </button>
-  //       <button onClick={() => handleSiteClick('https://www.29cm.co.kr/')}>
-  //         29CM
-  //       </button>
-  //       <button onClick={() => handleSiteClick('https://zigzag.kr/')}>
-  //         지그재그
-  //       </button>
-  //       <button onClick={() => handleSiteClick('https://display.wconcept.co.kr/rn/women')}>
-  //         W CONCEPT
-  //       </button>
-  //     </div>
-  //   )
-  // }
+  if (mode === 'iframe') {
+    const [image, setImage] = useState(null)
+    const dropRef = useRef()
+
+    // 클립보드 붙여넣기 이벤트 처리
+    useEffect(() => {
+      const handlePaste = (e) => {
+        const items = e.clipboardData.items
+        for (const item of items) {
+          if (item.type.indexOf('image') !== -1) {
+            const blob = item.getAsFile()
+            const url = URL.createObjectURL(blob)
+            setImage(url)
+          }
+        }
+      }
+
+      window.addEventListener('paste', handlePaste)
+      return () => window.removeEventListener('paste', handlePaste)
+    }, [])
+
+    // 드래그 앤 드롭 이벤트 처리
+    const handleDrop = (e) => {
+      e.preventDefault()
+      const file = e.dataTransfer.files[0]
+      if (file && file.type.startsWith('image/')) {
+        const url = URL.createObjectURL(file)
+        setImage(url)
+      }
+    }
+
+    const handleDragOver = (e) => {
+      e.preventDefault()
+    }
+
+    return (
+      <div style={{
+        width,
+        background: '#ffffff',
+        color: 'black',
+        padding: '1rem',
+        display: 'flex',
+        flexDirection: 'column',
+        gap: '1rem',
+        boxSizing: 'border-box',
+        boxShadow: 'inset 6px 0px 0px rgba(0, 0, 0, 0.1)'
+      }}>
+        <h2 style={{marginLeft: '1rem', marginBottom:'0px'}}>옷 검색</h2>
+        <p style={{marginLeft: '1rem', marginTop:'0px'}}>의류 사이트에서 원하는 옷을 담아보세요</p>
+        <div style={{ display: 'flex', gap: '1.5rem', width: '100%', height: '3rem' }}>
+          <button
+            onClick={() => setClothes('상의')}
+            style={{
+              flex: 1,
+              padding: '0.5rem',
+              backgroundColor: clothes === '상의' ? 'black' : 'white',
+              color: clothes === '상의' ? 'white' : 'black',
+              border: 'none',
+              borderRadius: '4px',
+              cursor: 'pointer'
+            }}>
+            상의
+          </button>
+          <button
+            onClick={() => setClothes('하의')}
+            style={{
+              flex: 1,
+              padding: '0.5rem',
+              backgroundColor: clothes === '하의' ? 'black' : 'white',
+              color: clothes === '하의' ? 'white' : 'black',
+              border: 'none',
+              borderRadius: '4px',
+              cursor: 'pointer'
+            }}>
+            하의
+          </button>
+        </div>
+        <div
+          onClick={() => setImage(null)}
+          ref={dropRef}
+          onDrop={handleDrop}
+          onDragOver={handleDragOver}
+          style={{
+            height: '200px',
+            border: '2px dashed #aaa',
+            borderRadius: '8px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            backgroundColor: '#fafafa',
+            marginTop: '1rem',
+            textAlign: 'center',
+            padding: '1rem'
+          }}
+        >
+          {image ? (
+            <img
+              src={image}
+              alt="업로드된 이미지"
+              style={{ maxHeight: '100%', maxWidth: '100%', objectFit: 'contain' }}
+            />
+          ) : (
+            <p>이미지를 드래그하거나<br />Ctrl+V로 붙여넣기 해주세요</p>
+          )}
+        </div>
+      </div>
+    )
+  }
 
   if (mode === 'input') {
     return (
