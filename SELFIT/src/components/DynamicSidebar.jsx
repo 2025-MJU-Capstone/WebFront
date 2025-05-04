@@ -1,8 +1,12 @@
-import { useState } from 'react';
+import { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 
 function DynamicSidebar({ mode, setUrl, inputValue, setInputValue }) {
-  const width = '400px' 
-  const inputStyle={
+  const navigate = useNavigate()
+  const [gender, setGender] = useState('') // 성별 상태
+  const width = '400px'
+
+  const inputStyle = {
     width: '100%',
     height: '3rem',
     padding: '0.4rem',
@@ -11,36 +15,41 @@ function DynamicSidebar({ mode, setUrl, inputValue, setInputValue }) {
     borderRadius: '4px',
     boxSizing: 'border-box'
   }
-  const [gender, setGender] = useState('') // 성별 상태
-  if (mode === 'iframe') {
-    return (
-      <div style={{
-        width,
-        background: '#ffffff',
-        color: 'white',
-        padding: '1rem',
-        display: 'flex',
-        flexDirection: 'column',
-        gap: '1rem',
-        boxSizing: 'border-box',
-        boxShadow: 'inset 6px 0px 0px rgba(0, 0, 0, 0.1)'
-      }}>
-        <h2>사이트 목록</h2>
-        <button onClick={() => setUrl('https://www.musinsa.com/main/musinsa/recommend?gf=A')}>
-          무신사
-        </button>
-        <button onClick={() => setUrl('https://www.29cm.co.kr/')}>
-          29CM
-        </button>
-        <button onClick={() => setUrl('https://zigzag.kr/')}>
-          지그재그
-        </button>
-        <button onClick={() => setUrl('https://display.wconcept.co.kr/rn/women')}>
-          W CONCEPT
-        </button>
-      </div>
-    )
+
+  const handleSiteClick = (siteUrl) => {
+    setUrl(siteUrl)
+    navigate('/store')
   }
+
+  // if (mode === 'iframe') {
+  //   return (
+  //     <div style={{
+  //       width,
+  //       background: '#ffffff',
+  //       color: 'white',
+  //       padding: '1rem',
+  //       display: 'flex',
+  //       flexDirection: 'column',
+  //       gap: '1rem',
+  //       boxSizing: 'border-box',
+  //       boxShadow: 'inset 6px 0px 0px rgba(0, 0, 0, 0.1)'
+  //     }}>
+  //       <h2>사이트 목록</h2>
+  //       <button onClick={() => handleSiteClick('https://www.musinsa.com/main/musinsa/recommend?gf=A')}>
+  //         무신사
+  //       </button>
+  //       <button onClick={() => handleSiteClick('https://www.29cm.co.kr/')}>
+  //         29CM
+  //       </button>
+  //       <button onClick={() => handleSiteClick('https://zigzag.kr/')}>
+  //         지그재그
+  //       </button>
+  //       <button onClick={() => handleSiteClick('https://display.wconcept.co.kr/rn/women')}>
+  //         W CONCEPT
+  //       </button>
+  //     </div>
+  //   )
+  // }
 
   if (mode === 'input') {
     return (
@@ -56,14 +65,9 @@ function DynamicSidebar({ mode, setUrl, inputValue, setInputValue }) {
         gap: '1rem',
         boxShadow: 'inset 6px 0px 0px rgba(0, 0, 0, 0.1)'
       }}>
-        <h1></h1>
-  
-        {/* 공통 폼 영역 */}
-        <div style={{ width: '70%', textAlign: 'left', display: 'flex', flexDirection: 'column', gap: '2rem',marginTop:'5rem'
-         }}>
-          
+        <div style={{ width: '70%', textAlign: 'left', display: 'flex', flexDirection: 'column', gap: '2rem', marginTop: '5rem' }}>
           <div>
-            <p style={{margin:0}}>이름을 입력하세요</p>
+            <p style={{ margin: 0 }}>이름을 입력하세요</p>
             <input
               type="text"
               value={inputValue}
@@ -72,14 +76,11 @@ function DynamicSidebar({ mode, setUrl, inputValue, setInputValue }) {
               placeholder=' ex) 김OO'
             />
           </div>
-  
+
           <div>
-            <p style={{margin:0}}>나이를 입력하세요</p>
+            <p style={{ margin: 0 }}>나이를 입력하세요</p>
             <div style={{ position: 'relative', width: '100%' }}>
-              <input
-                type="number"
-                style={inputStyle}
-              />
+              <input type="number" style={inputStyle} />
               <span style={{
                 position: 'absolute',
                 right: '0.7rem',
@@ -87,15 +88,13 @@ function DynamicSidebar({ mode, setUrl, inputValue, setInputValue }) {
                 transform: 'translateY(-50%)',
                 color: 'black',
                 pointerEvents: 'none'
-              }}>
-                세
-              </span>
+              }}>세</span>
             </div>
           </div>
-  
+
           <div>
-            <p style={{margin:0}}>성별을 선택하세요</p>
-            <div style={{ display: 'flex', gap: '1.5rem', width: '100%',height:'3rem' }}>
+            <p style={{ margin: 0 }}>성별을 선택하세요</p>
+            <div style={{ display: 'flex', gap: '1.5rem', width: '100%', height: '3rem' }}>
               <button
                 onClick={() => setGender('male')}
                 style={{
@@ -106,8 +105,7 @@ function DynamicSidebar({ mode, setUrl, inputValue, setInputValue }) {
                   border: 'none',
                   borderRadius: '4px',
                   cursor: 'pointer'
-                }}
-              >
+                }}>
                 남자
               </button>
               <button
@@ -120,30 +118,27 @@ function DynamicSidebar({ mode, setUrl, inputValue, setInputValue }) {
                   border: 'none',
                   borderRadius: '4px',
                   cursor: 'pointer'
-                }}
-              >
+                }}>
                 여자
               </button>
             </div>
           </div>
-  
+
           <div>
-            <p style={{margin:0}}>사용하실 닉네임을 입력하세요</p>
-            <input
-              type="text"
-              style={inputStyle}
-            />
+            <p style={{ margin: 0 }}>사용하실 닉네임을 입력하세요</p>
+            <input type="text" style={inputStyle} />
           </div>
+
           <div>
-          <button
-            style={{width:'100%',height:'3rem', marginTop:'2rem',color:'white',background:'black'}}
-          >등록하기</button>
+            <button
+              style={{ width: '100%', height: '3rem', marginTop: '2rem', color: 'white', background: 'black' }}>
+              등록하기
+            </button>
           </div>
         </div>
       </div>
     )
   }
-  
 
   return (
     <div style={{
