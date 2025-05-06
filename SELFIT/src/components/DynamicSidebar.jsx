@@ -6,6 +6,8 @@ function DynamicSidebar({ mode, setUrl, inputValue, setInputValue }) {
   const [gender, setGender] = useState('') // 성별 상태
   const [clothes, setClothes] = useState('') // 상의 하의
   const [image, setImage] = useState(null)
+  const [savedImages, setSavedImages] = useState([])
+  const [selectedIndex, setSelectedIndex] = useState(null)
   const dropRef = useRef()
   const width = '400px'
 
@@ -55,6 +57,24 @@ function DynamicSidebar({ mode, setUrl, inputValue, setInputValue }) {
   const handleDragOver = (e) => {
     if (mode !== 'iframe') return
     e.preventDefault()
+  }
+
+  const handleSaveImage = () => {
+    if (image && savedImages.length < 9) {
+      setSavedImages(prev => [...prev, image])
+      setImage(null)
+    }
+  }
+  
+  const handleImageClick = (index) => {
+    setSelectedIndex(prev => prev === index ? null : index)
+  }
+  
+  const handleDeleteSelected = () => {
+    if (selectedIndex !== null) {
+      setSavedImages(prev => prev.filter((_, i) => i !== selectedIndex))
+      setSelectedIndex(null)
+    }
   }
 
   if (mode === 'iframe') {
@@ -127,6 +147,68 @@ function DynamicSidebar({ mode, setUrl, inputValue, setInputValue }) {
           ) : (
             <p>이미지를 드래그하거나<br />Ctrl+V로 붙여넣기 해주세요</p>
           )}
+        </div>
+
+        {/* 저장 버튼 */}
+        <button
+          onClick={handleSaveImage}
+          disabled={!image || savedImages.length >= 9}
+          style={{
+            marginTop: '1rem',
+            width: '100%',
+            height: '3rem',
+            backgroundColor: image && savedImages.length < 9 ? 'black' : '#ccc',
+            color: 'white',
+            border: 'none',
+            borderRadius: '4px',
+            cursor: image && savedImages.length < 9 ? 'pointer' : 'not-allowed'
+          }}
+        >
+          이미지 저장
+        </button>
+        {/* 선택된 이미지 삭제 버튼 */}
+        <button
+          onClick={handleDeleteSelected}
+          disabled={selectedIndex === null}
+          style={{
+            marginTop: '0.5rem',
+            width: '100%',
+            height: '3rem',
+            backgroundColor: selectedIndex !== null ? 'red' : '#ccc',
+            color: 'white',
+            border: 'none',
+            borderRadius: '4px',
+            cursor: selectedIndex !== null ? 'pointer' : 'not-allowed'
+          }}
+        >
+          선택된 이미지 삭제
+        </button>
+
+        {/* 저장된 이미지 9개 */}
+        <div style={{
+          marginTop: '1.5rem',
+          display: 'grid',
+          gridTemplateColumns: 'repeat(3, 1fr)',
+          gap: '0.5rem'
+        }}>
+          {savedImages.map((img, index) => (
+            <div
+              key={index}
+              onClick={() => handleImageClick(index)}
+              style={{
+                position: 'relative',
+                width: '100%',
+                paddingTop: '100%',
+                backgroundImage: `url(${img})`,
+                backgroundSize: 'cover',
+                backgroundPosition: 'center',
+                borderRadius: '8px',
+                border: selectedIndex === index ? '3px solid blue' : '2px solid #ccc',
+                cursor: 'pointer',
+                boxSizing: 'border-box'
+              }}
+            />
+          ))}
         </div>
       </div>
     )
