@@ -18,6 +18,7 @@ function App() {
         <DynamicSidebar
           mode={mode}
           setUrl={setUrl}
+          setMode={setMode}
           inputValue={inputValue}
           setInputValue={setInputValue}
         />

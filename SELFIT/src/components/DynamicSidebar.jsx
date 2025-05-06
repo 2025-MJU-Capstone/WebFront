@@ -1,7 +1,8 @@
 import { useState, useRef, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
-
-function DynamicSidebar({ mode, setUrl, inputValue, setInputValue }) {
+import { AiFillEyeInvisible } from "react-icons/ai"
+import { AiFillEye } from "react-icons/ai"
+function DynamicSidebar({ mode, setMode, setUrl, inputValue, setInputValue }) {
   const navigate = useNavigate()
   const [gender, setGender] = useState('') // 성별 상태
   const [clothes, setClothes] = useState('') // 상의 하의
@@ -10,6 +11,14 @@ function DynamicSidebar({ mode, setUrl, inputValue, setInputValue }) {
   const [selectedIndex, setSelectedIndex] = useState(null)
   const dropRef = useRef()
   const width = '400px'
+  const [id, setId] = useState('')
+  const [password, setPassword] = useState('')
+  const [passwordHide, setPasswordHide] = useState(true) //비밀번호 숨김 상태
+  const [signUpId, setSignUpId] = useState('')
+  const [signUpPassword, setSignUpPassword] = useState('')
+  const [signUpPasswordHide, setSignUpPasswordHide] = useState(true)
+  const [passwordError, setPasswordError] = useState('')
+  const [idError, setIdError] = useState('')
 
   const inputStyle = {
     width: '100%',
@@ -65,16 +74,65 @@ function DynamicSidebar({ mode, setUrl, inputValue, setInputValue }) {
       setImage(null)
     }
   }
-  
+
   const handleImageClick = (index) => {
     setSelectedIndex(prev => prev === index ? null : index)
   }
-  
+
   const handleDeleteSelected = () => {
     if (selectedIndex !== null) {
       setSavedImages(prev => prev.filter((_, i) => i !== selectedIndex))
       setSelectedIndex(null)
     }
+  }
+
+  const togglePasswordVisibility = () => {
+      setPasswordHide(prev => !prev)
+  }
+  const signUpTogglePasswordVisibility = () => {
+      setSignUpPasswordHide(prev => !prev)
+  }
+
+  const passwordHandleChange = (e) => {
+      setSignUpPassword(e.target.value)
+      validatePassword(e.target.value)
+  }
+
+  const validatePassword = (pw) => {
+      let error = [];
+      if(pw.length < 8){
+          error.push('8자리 이상 입력해야 합니다.')
+      }
+
+      if(error.length > 0){
+          setPasswordError(error.join('<br />'))
+      }
+      else{
+          setPasswordError('')
+      }
+  }
+  const idHandleChange = (e) => {
+      setSignUpId(e.target.value)
+      validateId(e.target.value)
+  }
+
+  const validateId = (id) => {
+      let error = [];
+      if(id.length < 8){
+          error.push('8자리 이상 입력해야 합니다.')
+      }
+
+      if (/[!@#$%^&*(),.?":{}|<>]/.test(id)) {
+          error.push('특수문자는 사용 불가합니다.');
+      }
+
+      if(error.length > 0){
+          setIdError(error.join())
+      }
+
+      else{
+          setIdError('')
+      }
   }
 
   if (mode === 'iframe') {
@@ -301,6 +359,256 @@ function DynamicSidebar({ mode, setUrl, inputValue, setInputValue }) {
         </div>
       </div>
     )
+  }
+
+  if (mode === 'main') {
+      return (
+          <div style={{
+              width,
+              background: '#ffffff',
+              color: 'black',
+              padding: '1rem',
+              boxSizing: 'border-box',
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              gap: '1rem',
+              boxShadow: 'inset 6px 0px 0px rgba(0, 0, 0, 0.1)',
+              marginTop: '-4rem'
+          }}>
+              <div style={{
+                  width: '70%',
+                  textAlign: 'left',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: '1rem',
+                  marginTop: '5rem'
+              }}>
+                  <h1 style={{color: 'black', textAlign: 'center'}}>로그인</h1>
+                  <div>
+                      <input
+                          type="text"
+                          value={id}
+                          onChange={(e) => setId(e.target.value)}
+                          style={inputStyle}
+                          placeholder='아이디를 입력하세요.'
+                      />
+                  </div>
+
+                  <div style={{position: 'relative'}}>
+                      <input
+                          type={passwordHide ? 'password' : 'text'}
+                          value={password}
+                          onChange={(e) => setPassword(e.target.value)}
+                          style={inputStyle}
+                          placeholder='비밀번호를 입력하세요.'
+                      />
+                      {passwordHide ?(
+                          <AiFillEyeInvisible
+                              onClick={togglePasswordVisibility}
+                              onMouseDown={(e) => e.preventDefault()}
+                              style={{
+                                  position: 'absolute',
+                                  right: '8px',
+                                  top: '50%',
+                                  transform: 'translateY(-50%)',
+                                  height: '24px',
+                                  fontSize: '14px',
+                                  padding: '2px 8px',
+                                  cursor: 'pointer'
+                          }}
+                          />
+                      ) : (
+                          <AiFillEye
+                              onClick={togglePasswordVisibility}
+                              onMouseDown={(e) => e.preventDefault()}
+                              style={{
+                                  position: 'absolute',
+                                  right: '8px',
+                                  top: '50%',
+                                  transform: 'translateY(-50%)',
+                                  height: '24px',
+                                  fontSize: '14px',
+                                  padding: '2px 8px',
+                                  cursor: 'pointer'
+                          }}
+                          />
+                      )
+                      }
+                  </div>
+
+                  <div>
+                      <button
+                          style={{
+                              fontSize: '14px',
+                              width: '100%',
+                              height: '3rem',
+                              color: 'white',
+                              background: 'black'
+                      }}
+                      >로그인
+                      </button>
+                  </div>
+
+                  <div>
+                      <button
+                          style={{
+                              fontSize: '14px',
+                              width: '100%',
+                              height: '3rem',
+                              color: 'white',
+                              background: 'black'
+                      }}
+                      >카카오 로그인
+                      </button>
+                  </div>
+
+                  <div>
+                      <button onClick={() => setMode('signUp')}
+                              style={{
+                                  fontSize: '14px',
+                                  width: '100%',
+                                  height: '3rem',
+                                  color: 'white',
+                                  background: 'black'
+                      }}
+                      >서비스가 처음이신가요? 회원가입 하기
+                      </button>
+                  </div>
+
+                  <div>
+                      <label
+                          style={{
+                              marginLeft: '5.5rem',
+                              background: 'none',
+                              cursor: 'pointer',
+                              fontSize: '14px'
+                      }}
+                      >아이디 찾기
+                      </label>
+                      <label
+                          style={{
+                              marginLeft: '1rem',
+                              background: 'none',
+                              cursor: 'pointer',
+                              fontSize: '14px'
+                      }}
+                      >비밀번호 찾기
+                      </label>
+                  </div>
+              </div>
+          </div>
+      )
+  }
+
+  if (mode === 'signUp') {
+      return (
+          <div style={{
+              width,
+              background: '#ffffff',
+              color: 'black',
+              padding: '1rem',
+              boxSizing: 'border-box',
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              gap: '1rem',
+              boxShadow: 'inset 6px 0px 0px rgba(0, 0, 0, 0.1)'
+          }}>
+              <h1>회원가입</h1>
+
+              {/* 공통 폼 영역 */}
+              <div style={{
+                  width: '70%',
+                  textAlign: 'left',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: '2rem',
+                  marginTop: '5   rem'
+              }}>
+
+                  <div>
+                      <p style={{margin: 0}}>사용하실 아이디를 입력하세요.</p>
+                      <input
+                          type="text"
+                          value={signUpId}
+                          onChange={(e) => idHandleChange(e)}
+                          style={{...inputStyle, borderColor: idError? 'red' : '#ccc'}}
+                          placeholder='아이디를 입력하세요.'
+                      />
+                      <p style={{fontSize: 12,fontWeight: 200, margin: 0}}>영문과 숫자를 사용하여 8자리 이상 입력해주세요.</p>
+                      <p style={{fontSize: 12,fontWeight: 200, margin: 0}}>특수문자는 사용이 불가합니다.</p>
+                      <p style={{fontSize: 12, color: 'red'}}>{idError}</p>
+                  </div>
+                  <div>
+                      <p style={{margin: 0}}>사용하실 비밀번호를 입력해주세요.</p>
+                      <div style={{position: 'relative', width: '100%'}}>
+                          <input
+                              type={signUpPasswordHide ? 'password' : 'text'}
+                              value={signUpPassword}
+                              onChange={(e) => passwordHandleChange(e)}
+                              style={{...inputStyle, borderColor: passwordError? 'red' : '#ccc'}}
+                              placeholder='비밀번호를 입력하세요.'
+                          />
+                          {signUpPasswordHide ?(
+                              <AiFillEyeInvisible
+                                  onClick={signUpTogglePasswordVisibility}
+                                  onMouseDown={(e) => e.preventDefault()}
+                                  style={{
+                                      position: 'absolute',
+                                      right: '8px',
+                                      top: '40%',
+                                      transform: 'translateY(-50%)',
+                                      height: '24px',
+                                      fontSize: '14px',
+                                      padding: '2px 8px',
+                                      cursor: 'pointer'
+                              }}
+                              />
+                          ) : (
+                              <AiFillEye
+                                  onClick={signUpTogglePasswordVisibility}
+                                  onMouseDown={(e) => e.preventDefault()}
+                                  style={{
+                                      position: 'absolute',
+                                      right: '8px',
+                                      top: '40%',
+                                      transform: 'translateY(-50%)',
+                                      height: '24px',
+                                      fontSize: '14px',
+                                      padding: '2px 8px',
+                                      cursor: 'pointer'
+                              }}
+                              />
+                          )
+                          }
+                          <p style={{fontSize: 12,fontWeight: 200, margin: 0}}>영문과 숫자를 사용하여 8자리 이상 입력해주세요.</p>
+                      </div>
+                      <p style={{fontSize: 12, color: 'red'}}>{passwordError}</p>
+                  </div>
+
+                  <div>
+                      <p style={{margin: 0}}>이메일을 입력하세요.</p>
+                      <input
+                          type="text"
+                          style={inputStyle}
+                      />
+                  </div>
+                  <div>
+                      <button
+                          style={{
+                              width: '100%',
+                              height: '3rem',
+                              marginTop: '2rem',
+                              color: 'white',
+                              background: 'black'
+                      }}
+                      >회원가입 하기
+                      </button>
+                  </div>
+              </div>
+          </div>
+      )
   }
 
   return (
