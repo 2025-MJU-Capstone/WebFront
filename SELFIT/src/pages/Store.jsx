@@ -1,6 +1,7 @@
 import { useNavigate } from 'react-router-dom'
 import { useEffect } from 'react'
-import './Store.css' // CSS 파일 import
+import './Store.css'
+import Arrow from "../assets/Arrow 8.svg"
 
 function Store({ url, setUrl }) {
   const navigate = useNavigate()
@@ -14,7 +15,7 @@ function Store({ url, setUrl }) {
   const siteList = [
     { name: '무신사', url: 'https://www.musinsa.com/main/musinsa/recommend?gf=A' },
     { name: '29CM', url: 'https://www.29cm.co.kr/' },
-    { name: '지그재그', url: 'https://zigzag.kr/' },
+    { name: '지그재그', url: 'https://zigzag.kr/' }
   ]
 
   const handleSelect = (siteUrl) => {
@@ -23,10 +24,6 @@ function Store({ url, setUrl }) {
 
   return (
     <div className="store-container">
-      <button className="back-btn" onClick={() => setUrl('')}>
-        <b>뒤로 가기</b>
-      </button>
-
       {!url ? (
         <div className="store-selection">
           <h1>스토어 보기</h1>
@@ -45,15 +42,23 @@ function Store({ url, setUrl }) {
           </div>
         </div>
       ) : (
-        <iframe
-          src={url}
-          title="외부사이트"
-          className="store-iframe"
-        />
+        <div className="store-flex-row">
+          <img
+           src={Arrow}
+           className="back-btn"
+           onClick={() => setUrl('')}
+          />
+          <iframe
+            src={url}
+            title="외부사이트"
+            className="store-iframe"
+          />
+        </div>
       )}
     </div>
   )
 }
 
 export default Store
+
 
