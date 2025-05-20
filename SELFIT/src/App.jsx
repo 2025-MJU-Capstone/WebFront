@@ -5,6 +5,7 @@ import LeftSidebar from './components/LeftSidebar'
 import DynamicSidebar from './components/DynamicSidebar'
 import Store from './pages/Store'
 import Main from './pages/Main'
+import Closet from './pages/Closet'
 
 function App() {
   const [mode, setMode] = useState('main')
@@ -25,6 +26,7 @@ function App() {
         <Routes>
           <Route path="/" element={<Main mode={mode} inputValue={inputValue} />} />
           <Route path="/store" element={<Store url={url} setUrl={setUrl} />} />
+          <Route path="/closet" element={<Closet mode={mode}/>} />
         </Routes>
       </div>
     </BrowserRouter>
