@@ -57,8 +57,8 @@ function LeftSidebar({ setMode }) {
         style={{ cursor: "pointer" }}
         onClick={() => {
           setSelectedButton('closet');
-          setMode('somethingElse');
-          navigate('/closet'); // 나중에 구현할 경로
+          setMode('closet');
+          navigate('/closet'); 
         }}
       /> 
 
