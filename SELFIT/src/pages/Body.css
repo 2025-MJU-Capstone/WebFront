@@ -1,0 +1,52 @@
+.body-container {
+
+}
+
+.body-flex {
+    display: flex;
+    height: 50vh;
+    width: 100%;
+    margin-bottom: 50px;
+}
+
+.image {
+    background-color: #d9d9d9;
+    height: 100%;
+    width: 160px;
+    margin-left: 30px;
+    borderRadius: 8px;
+    display: flex;
+    alignItems: center;
+    justifyContent: center;
+    backgroundColor: #fafafa;
+    marginTop: 1rem;
+    padding: 1rem;
+}
+
+.btn-active {
+    width: 200px;
+    color: white;
+    background-color: black;
+    float: right;
+    cursor: pointer;
+}
+
+.btn-inactive{
+    width: 200px;
+    color: white;
+    background-color: gray;
+    float: right;
+    cursor: default;
+}
+
+.image-font {
+    font-size: 35px;
+    margin: 0 auto;
+    align-content: center;
+    text-align: center;
+}
+
+.bottom-container {
+    display: flex;
+    margin-left: 30px;
+}
