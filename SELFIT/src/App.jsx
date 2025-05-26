@@ -5,8 +5,10 @@ import LeftSidebar from './components/LeftSidebar'
 import DynamicSidebar from './components/DynamicSidebar'
 import Store from './pages/Store'
 import Main from './pages/Main'
+import Body from './pages/Body'
 import Closet from './pages/Closet'
 import Setting from './pages/Setting'
+import SignUp from './pages/SignUp'
 
 function App() {
   const [mode, setMode] = useState('main')
@@ -31,7 +33,9 @@ function App() {
           <Route path="/" element={<Main mode={mode} inputValue={inputValue} />} />
           <Route path="/store" element={<Store url={url} setUrl={setUrl} />} />
           <Route path="/closet" element={<Closet mode={mode}/>} />
+          <Route path="/body" element={<Body/>}></Route>
           <Route path="/setting" element={<Setting tab={settingTab} />}/>
+          <Route path="/signUp" element={<SignUp></SignUp>}/>
         </Routes>
       </div>
     </BrowserRouter>

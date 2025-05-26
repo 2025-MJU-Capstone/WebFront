@@ -33,8 +33,8 @@ function LeftSidebar({ setMode }) {
         style={{ cursor: "pointer" }}
         onClick={() => {
           setSelectedButton('body');
-          setMode('input');
-          navigate('/'); //  홈으로 이동 (Main)
+          setMode('body');
+          navigate('/body'); //  홈으로 이동 (Main)
         }}
       />
 
