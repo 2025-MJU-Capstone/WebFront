@@ -6,11 +6,13 @@ import DynamicSidebar from './components/DynamicSidebar'
 import Store from './pages/Store'
 import Main from './pages/Main'
 import Closet from './pages/Closet'
+import Setting from './pages/Setting'
 
 function App() {
   const [mode, setMode] = useState('main')
   const [url, setUrl] = useState('')
   const [inputValue, setInputValue] = useState('')
+  const [settingTab, setSettingTab] = useState('member');
 
   return (
     <BrowserRouter>
@@ -22,11 +24,14 @@ function App() {
           setMode={setMode}
           inputValue={inputValue}
           setInputValue={setInputValue}
+          settingTab={settingTab}
+          setSettingTab={setSettingTab}
         />
         <Routes>
           <Route path="/" element={<Main mode={mode} inputValue={inputValue} />} />
           <Route path="/store" element={<Store url={url} setUrl={setUrl} />} />
           <Route path="/closet" element={<Closet mode={mode}/>} />
+          <Route path="/setting" element={<Setting tab={settingTab} />}/>
         </Routes>
       </div>
     </BrowserRouter>
