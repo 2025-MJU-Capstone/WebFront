@@ -2,7 +2,8 @@ import { useState, useRef, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { AiFillEyeInvisible } from "react-icons/ai"
 import { AiFillEye } from "react-icons/ai"
-function DynamicSidebar({ mode, setMode, setUrl, inputValue, setInputValue }) {
+import Setting from '../pages/Setting.jsx'
+function DynamicSidebar({ mode, setMode, setUrl, inputValue, setInputValue, settingTab, setSettingTab }) {
   const navigate = useNavigate()
   const [gender, setGender] = useState('') // 성별 상태
   const [clothes, setClothes] = useState('') // 상의 하의
@@ -795,19 +796,48 @@ function DynamicSidebar({ mode, setMode, setUrl, inputValue, setInputValue }) {
       )
   }
 
-  return (
-    <div style={{
-      width,
-      background: '#ffffff',
-      color: 'black',
-      padding: '1rem',
-      boxSizing: 'border-box',
-      boxShadow: 'inset 6px 0px 0px rgba(0, 0, 0, 0.1)'
-    }}>
-      <h2>기타 모드</h2>
-      <p>{mode} 모드 내용은 나중에 추가</p>
-    </div>
-  )
+ if (mode === 'setting') {
+    return (
+      <div style={{
+        width,
+        background: '#ffffff',
+        color: 'black',
+        padding: '1rem',
+        display: 'flex',
+        flexDirection: 'column',
+        gap: '1rem',
+        boxSizing: 'border-box',
+        boxShadow: 'inset 6px 0px 0px rgba(0, 0, 0, 0.1)',
+        height: '100vh', 
+        overflowY: 'auto' }}>
+        <div>
+          <h2>설정</h2>
+          <div>
+            {[
+              { label: '회원 정보', value: 'member' },
+              { label: '약관 및 정책', value: 'policy' },
+              { label: '오류 신고', value: 'report' }
+            ].map(({ label, value }) => (
+              <button
+                key={value}
+                onClick={() => setSettingTab(value)}
+                style={{
+                  width: '100%',
+                  height: '3rem',
+                  marginTop: '1rem',
+                  color: settingTab === value ? 'white' : 'black',
+                  background: settingTab === value ? 'black' : 'white',
+                  border: '2px solid black'
+                }}
+              >
+                {label}
+              </button>
+            ))}
+          </div>
+        </div>
+      </div>
+    )
+  }
 }
 
 export default DynamicSidebar
