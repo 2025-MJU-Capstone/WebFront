@@ -9,6 +9,20 @@
     margin-bottom: 50px;
 }
 
+.body-flex2 {
+    display: flex;
+    height: 50vh;
+    width: 100%;
+    margin-top: 200px;
+    margin-left: 50px;
+}
+
+.image2{
+    background-color: #d9d9d9;
+    margin-right: 50px;
+    width: 250px;
+}
+
 .image {
     background-color: #d9d9d9;
     height: 100%;
