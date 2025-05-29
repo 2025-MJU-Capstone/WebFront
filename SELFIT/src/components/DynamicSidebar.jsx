@@ -2,6 +2,7 @@ import { useState, useRef, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { AiFillEyeInvisible } from "react-icons/ai"
 import { AiFillEye } from "react-icons/ai"
+import axios from 'axios'
 import Setting from '../pages/Setting.jsx'
 function DynamicSidebar({ mode, setMode, setUrl, inputValue, setInputValue, settingTab, setSettingTab }) {
   const navigate = useNavigate()
@@ -22,13 +23,14 @@ function DynamicSidebar({ mode, setMode, setUrl, inputValue, setInputValue, sett
   const [idError, setIdError] = useState('')
   const [myClosetImages, setMyClosetImages] = useState([]) //개인 옷
   const [selectedMyClosetIndex, setSelectedMyClosetIndex] = useState(null)
-    const [height, setHeight] = useState('')
-    const [weight, setWeight] = useState('')
-    const [waist, setWaist] = useState('')
-    const [leg, setLeg] = useState('')
-    const [shoulder, setShoulder] = useState('')
-    const [pelvis, setPelvis] = useState('')
-    const [chest, setChest] = useState('')
+  const [height, setHeight] = useState('')
+  const [weight, setWeight] = useState('')
+  const [waist, setWaist] = useState('')
+  const [leg, setLeg] = useState('')
+  const [shoulder, setShoulder] = useState('')
+  const [pelvis, setPelvis] = useState('')
+  const [chest, setChest] = useState('')
+  const [signUpEmail, setSignUpEmail] = useState('');
 
   const inputStyle = {
     width: '100%',
@@ -165,6 +167,45 @@ function DynamicSidebar({ mode, setMode, setUrl, inputValue, setInputValue, sett
           setIdError('')
       }
   }
+  const handleSignUp = async () => { //회원가입api
+    try {
+        const response = await axios.post('http://localhost:8080/api/auth/save', {
+            accountId: signUpId,
+            password: signUpPassword,
+            email: signUpEmail, 
+        });
+
+        alert(response.data.message); // ApiResult<String>이 반환됨
+        navigate('/'); 
+        setMode('main');
+    } catch (error) {
+        console.error(error);
+        alert('회원가입 실패: ' + (error.response?.data?.data || '서버 오류'));
+    }
+};
+
+const handleLogin = async () => { //로그인api
+    try {
+        const response = await axios.post('http://localhost:8080/api/auth/login', {
+            accountId: id,
+            password: password,
+        });
+
+        const { accessToken, refreshToken } = response.data.data;
+
+        // 토큰 로컬스토리지 저장
+        localStorage.setItem('accessToken', accessToken);
+        localStorage.setItem('refreshToken', refreshToken);
+
+        alert('로그인 성공!');
+         setMode('body');
+        navigate('/body'); 
+
+    } catch (error) {
+        console.error(error);
+        alert('로그인 실패: ' + (error.response?.data?.message || '서버 오류'));
+    }
+};
 
   if (mode === 'iframe') {
     return (
@@ -464,94 +505,94 @@ function DynamicSidebar({ mode, setMode, setUrl, inputValue, setInputValue, sett
     )
   }
 
-  if (mode === 'input') {
-    return (
-      <div style={{
-        width,
-        background: '#ffffff',
-        color: 'black',
-        padding: '1rem',
-        boxSizing: 'border-box',
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-        gap: '1rem',
-        boxShadow: 'inset 6px 0px 0px rgba(0, 0, 0, 0.1)'
-      }}>
-        <div style={{ width: '70%', textAlign: 'left', display: 'flex', flexDirection: 'column', gap: '2rem', marginTop: '5rem' }}>
-          <div>
-            <p style={{ margin: 0 }}>이름을 입력하세요</p>
-            <input
-              type="text"
-              value={inputValue}
-              onChange={(e) => setInputValue(e.target.value)}
-              style={inputStyle}
-              placeholder=' ex) 김OO'
-            />
-          </div>
+  // if (mode === 'input') { 사용자정보입력(미구현)
+  //   return (
+  //     <div style={{
+  //       width,
+  //       background: '#ffffff',
+  //       color: 'black',
+  //       padding: '1rem',
+  //       boxSizing: 'border-box',
+  //       display: 'flex',
+  //       flexDirection: 'column',
+  //       alignItems: 'center',
+  //       gap: '1rem',
+  //       boxShadow: 'inset 6px 0px 0px rgba(0, 0, 0, 0.1)'
+  //     }}>
+  //       <div style={{ width: '70%', textAlign: 'left', display: 'flex', flexDirection: 'column', gap: '2rem', marginTop: '5rem' }}>
+  //         <div>
+  //           <p style={{ margin: 0 }}>이름을 입력하세요</p>
+  //           <input
+  //             type="text"
+  //             value={inputValue}
+  //             onChange={(e) => setInputValue(e.target.value)}
+  //             style={inputStyle}
+  //             placeholder=' ex) 김OO'
+  //           />
+  //         </div>
 
-          <div>
-            <p style={{ margin: 0 }}>나이를 입력하세요</p>
-            <div style={{ position: 'relative', width: '100%' }}>
-              <input type="number" style={inputStyle} />
-              <span style={{
-                position: 'absolute',
-                right: '0.7rem',
-                top: '50%',
-                transform: 'translateY(-50%)',
-                color: 'black',
-                pointerEvents: 'none'
-              }}>세</span>
-            </div>
-          </div>
+  //         <div>
+  //           <p style={{ margin: 0 }}>나이를 입력하세요</p>
+  //           <div style={{ position: 'relative', width: '100%' }}>
+  //             <input type="number" style={inputStyle} />
+  //             <span style={{
+  //               position: 'absolute',
+  //               right: '0.7rem',
+  //               top: '50%',
+  //               transform: 'translateY(-50%)',
+  //               color: 'black',
+  //               pointerEvents: 'none'
+  //             }}>세</span>
+  //           </div>
+  //         </div>
 
-          <div>
-            <p style={{ margin: 0 }}>성별을 선택하세요</p>
-            <div style={{ display: 'flex', gap: '1.5rem', width: '100%', height: '3rem' }}>
-              <button
-                onClick={() => setGender('male')}
-                style={{
-                  flex: 1,
-                  padding: '0.5rem',
-                  backgroundColor: gender === 'male' ? '#737373' : '#F6F6F6',
-                  color: gender === 'male' ? 'white' : 'black',
-                  border: 'none',
-                  borderRadius: '4px',
-                  cursor: 'pointer'
-                }}>
-                남자
-              </button>
-              <button
-                onClick={() => setGender('female')}
-                style={{
-                  flex: 1,
-                  padding: '0.5rem',
-                  backgroundColor: gender === 'female' ? '#737373' : '#F6F6F6',
-                  color: gender === 'female' ? 'white' : 'black',
-                  border: 'none',
-                  borderRadius: '4px',
-                  cursor: 'pointer'
-                }}>
-                여자
-              </button>
-            </div>
-          </div>
+  //         <div>
+  //           <p style={{ margin: 0 }}>성별을 선택하세요</p>
+  //           <div style={{ display: 'flex', gap: '1.5rem', width: '100%', height: '3rem' }}>
+  //             <button
+  //               onClick={() => setGender('male')}
+  //               style={{
+  //                 flex: 1,
+  //                 padding: '0.5rem',
+  //                 backgroundColor: gender === 'male' ? '#737373' : '#F6F6F6',
+  //                 color: gender === 'male' ? 'white' : 'black',
+  //                 border: 'none',
+  //                 borderRadius: '4px',
+  //                 cursor: 'pointer'
+  //               }}>
+  //               남자
+  //             </button>
+  //             <button
+  //               onClick={() => setGender('female')}
+  //               style={{
+  //                 flex: 1,
+  //                 padding: '0.5rem',
+  //                 backgroundColor: gender === 'female' ? '#737373' : '#F6F6F6',
+  //                 color: gender === 'female' ? 'white' : 'black',
+  //                 border: 'none',
+  //                 borderRadius: '4px',
+  //                 cursor: 'pointer'
+  //               }}>
+  //               여자
+  //             </button>
+  //           </div>
+  //         </div>
 
-          <div>
-            <p style={{ margin: 0 }}>사용하실 닉네임을 입력하세요</p>
-            <input type="text" style={inputStyle} />
-          </div>
+  //         <div>
+  //           <p style={{ margin: 0 }}>사용하실 닉네임을 입력하세요</p>
+  //           <input type="text" style={inputStyle} />
+  //         </div>
 
-          <div>
-            <button
-              style={{ width: '100%', height: '3rem', marginTop: '2rem', color: 'white', background: 'black' }}>
-              등록하기
-            </button>
-          </div>
-        </div>
-      </div>
-    )
-  }
+  //         <div>
+  //           <button
+  //             style={{ width: '100%', height: '3rem', marginTop: '2rem', color: 'white', background: 'black' }}>
+  //             등록하기
+  //           </button>
+  //         </div>
+  //       </div>
+  //     </div>
+  //   )
+  // }
 
   if (mode === 'main') {
       return (
@@ -631,6 +672,7 @@ function DynamicSidebar({ mode, setMode, setUrl, inputValue, setInputValue, sett
 
                   <div>
                       <button
+                          onClick={handleLogin}
                           style={{
                               fontSize: '14px',
                               width: '100%',
@@ -786,20 +828,24 @@ function DynamicSidebar({ mode, setMode, setUrl, inputValue, setInputValue, sett
                       <p style={{margin: 0}}>이메일을 입력하세요.</p>
                       <input
                           type="text"
+                          value={signUpEmail}
+                          onChange={(e) => setSignUpEmail(e.target.value)}
                           style={inputStyle}
                       />
                   </div>
                   <div>
                       <button
-                          style={{
-                              width: '100%',
-                              height: '3rem',
-                              marginTop: '2rem',
-                              color: 'white',
-                              background: 'black'
-                      }}
-                      >회원가입 하기
-                      </button>
+                        style={{
+                            width: '100%',
+                            height: '3rem',
+                            marginTop: '2rem',
+                            color: 'white',
+                            background: 'black'
+                        }}
+                        onClick={handleSignUp}
+                      >
+                        회원가입 하기
+                    </button>
                   </div>
               </div>
           </div>
