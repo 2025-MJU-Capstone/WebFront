@@ -7,7 +7,11 @@ import SignUpSidebar from './sidebarMode/SignUpSidebar';
 import BodySidebar from './sidebarMode/BodySidebar';
 import SettingSidebar from './sidebarMode/SettingSidebar';
 
-function DynamicSidebar({ mode, setMode, setUrl, inputValue, setInputValue, settingTab, setSettingTab }) {
+function DynamicSidebar({
+  mode, setMode, setUrl, inputValue, setInputValue, settingTab, setSettingTab,
+  height, setHeight, weight, setWeight, waist, setWaist, leg, setLeg,
+  shoulder, setShoulder, pelvis, setPelvis, chest, setChest
+}) {
   const navigate = useNavigate();
   const [gender, setGender] = useState('');
   const [clothes, setClothes] = useState('');
@@ -25,13 +29,6 @@ function DynamicSidebar({ mode, setMode, setUrl, inputValue, setInputValue, sett
   const [signUpEmail, setSignUpEmail] = useState('');
   const [myClosetImages, setMyClosetImages] = useState([]);
   const [selectedMyClosetIndex, setSelectedMyClosetIndex] = useState(null);
-  const [height, setHeight] = useState('');
-  const [weight, setWeight] = useState('');
-  const [waist, setWaist] = useState('');
-  const [leg, setLeg] = useState('');
-  const [shoulder, setShoulder] = useState('');
-  const [pelvis, setPelvis] = useState('');
-  const [chest, setChest] = useState('');
 
   const dropRef = useRef();
   const width = '400px';
@@ -84,4 +81,5 @@ function DynamicSidebar({ mode, setMode, setUrl, inputValue, setInputValue, sett
 }
 
 export default DynamicSidebar;
+
 

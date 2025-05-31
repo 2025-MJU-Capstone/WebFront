@@ -42,6 +42,15 @@ function App() {
   const [inputValue, setInputValue] = useState('')
   const [settingTab, setSettingTab] = useState('member');
 
+  //신체 정보 상태 추가
+  const [height, setHeight] = useState('');
+  const [weight, setWeight] = useState('');
+  const [waist, setWaist] = useState('');
+  const [leg, setLeg] = useState('');
+  const [shoulder, setShoulder] = useState('');
+  const [pelvis, setPelvis] = useState('');
+  const [chest, setChest] = useState('');
+
   // 자동 로그인 유지
   useEffect(() => {
     const token = localStorage.getItem('accessToken');
@@ -62,6 +71,20 @@ function App() {
           setInputValue={setInputValue}
           settingTab={settingTab}
           setSettingTab={setSettingTab}
+          height={height}
+          setHeight={setHeight}
+          weight={weight}
+          setWeight={setWeight}
+          waist={waist}
+          setWaist={setWaist}
+          leg={leg}
+          setLeg={setLeg}
+          shoulder={shoulder}
+          setShoulder={setShoulder}
+          pelvis={pelvis}
+          setPelvis={setPelvis}
+          chest={chest}
+          setChest={setChest}
         />
        <Routes>
           {/* 비로그인 사용자도 접근 가능 */}
@@ -70,7 +93,14 @@ function App() {
           {/* 로그인한 사용자만 접근 가능 */}
           <Route path="/store" element={<PrivateRoute setMode={setMode}><Store url={url} setUrl={setUrl} /></PrivateRoute>} />
           <Route path="/closet" element={<PrivateRoute setMode={setMode}><Closet mode={mode} /></PrivateRoute>} />
-          <Route path="/body" element={<PrivateRoute setMode={setMode}><Body /></PrivateRoute>} />
+          <Route path="/body" element={<PrivateRoute setMode={setMode}><Body 
+                height={height}
+                weight={weight}
+                waist={waist}
+                leg={leg}
+                shoulder={shoulder}
+                pelvis={pelvis}
+                chest={chest}/></PrivateRoute>} />
           <Route path="/setting" element={<PrivateRoute setMode={setMode}><Setting tab={settingTab} /></PrivateRoute>} />
         </Routes>
       </div>
