@@ -12,7 +12,7 @@ function Body() {
     const [isValid, setIsValid] = useState(false)
     const dropRef = useRef()
 
-    const [test, setTest] = useState(true)
+    const [test, setTest] = useState(false)
 
     useEffect(() => {
         if ((upImage !== null) && (downImage !== null) && (rightImage !== null) && (leftImage !== null))
@@ -34,6 +34,10 @@ function Body() {
     const handleDragOver = (e) => {
         if (window.location.pathname.split('/').pop() !== 'body') return
         e.preventDefault()
+    }
+
+    const bodyHandle = () =>{
+        setTest(prev => !prev);
     }
 
     if (test == false) {
@@ -116,7 +120,11 @@ function Body() {
                         <p>체형을 분석하는 데 시간이 걸릴 수 있어요.</p>
                         <p style={{marginLeft: "28%"}}>사진이 없다면 실시간으로 촬영 후 분석이 가능해요.</p>
                     </div>
-                    <button className={isValid ? "btn-active" : "btn-inactive"} disables={isValid}>실시간 분석하기</button>
+                    <button
+                        className={isValid ? "btn-active" : "btn-inactive"}
+                        disabled={isValid}
+                        onClick={bodyHandle}
+                    >실시간 분석하기</button>
                 </div>
             </div>
         )
