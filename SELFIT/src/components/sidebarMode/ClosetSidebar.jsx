@@ -1,4 +1,5 @@
 import React from 'react';
+import axios from 'axios';
 
 function ClosetSidebar({
   savedImages, setSavedImages, selectedIndex, setSelectedIndex,
@@ -10,18 +11,37 @@ function ClosetSidebar({
     setSelectedIndex(prev => (prev === index ? null : index));
   };
 
-  const handleDeleteSelected = () => {
+  const handleDeleteSelected = async () => {
     if (selectedIndex !== null) {
-      setSavedImages(prev => prev.filter((_, i) => i !== selectedIndex));
-      setSelectedIndex(null);
+      try {
+        // 담은 옷 삭제
+        await axios.delete(`http://localhost:8080/api/clothes/upload/${selectedIndex}`);
+        setSavedImages(prev => prev.filter((_, i) => i !== selectedIndex));
+        setSelectedIndex(null);
+      } catch (error) {
+        console.error('담은 옷 삭제 실패', error);
+      }
     }
   };
 
-  const handleMyClosetImageUpload = (e) => {
-    const file = e.target.files[0];
-    if (file && file.type.startsWith('image/')) {
-      const url = URL.createObjectURL(file);
-      setMyClosetImages(prev => [...prev, url]);
+  const handleMyClosetImageUpload = async (e) => {
+    const files = Array.from(e.target.files);
+    if (files.length > 0) {
+      try {
+        const formData = new FormData();
+        files.forEach(file => {
+          formData.append('file', file);
+        });
+        // 소장 의류 업로드
+        await axios.post('http://localhost:8080/api/wardrobe/photos', formData, {
+          headers: { 'Content-Type': 'multipart/form-data' }
+        });
+        // 임시 프론트 반영
+        const newImageUrls = files.map(file => URL.createObjectURL(file));
+        setMyClosetImages(prev => [...prev, ...newImageUrls]);
+      } catch (error) {
+        console.error('소장 의류 업로드 실패', error);
+      }
     }
   };
 
@@ -29,10 +49,16 @@ function ClosetSidebar({
     setSelectedMyClosetIndex(prev => (prev === index ? null : index));
   };
 
-  const handleDeleteMyClosetImage = () => {
+  const handleDeleteMyClosetImage = async () => {
     if (selectedMyClosetIndex !== null) {
-      setMyClosetImages(prev => prev.filter((_, i) => i !== selectedMyClosetIndex));
-      setSelectedMyClosetIndex(null);
+      try {
+        // 소장 의류 삭제
+        await axios.delete(`http://localhost:8080/api/wardrobe/photos/${selectedMyClosetIndex}`);
+        setMyClosetImages(prev => prev.filter((_, i) => i !== selectedMyClosetIndex));
+        setSelectedMyClosetIndex(null);
+      } catch (error) {
+        console.error('소장 의류 삭제 실패', error);
+      }
     }
   };
 
@@ -50,10 +76,9 @@ function ClosetSidebar({
       height: '100vh',
       overflowY: 'auto'
     }}>
-      <h2 style={{ marginLeft: '1rem', marginBottom: '0px' }}>나의 옷장</h2>
-      <p style={{ marginLeft: '1rem', marginTop: '0px' }}>쇼핑몰에서 원하는 옷을 담아보세요</p>
-
-      {/* 저장된 이미지 */}
+      {/* 담은 옷 */}
+      <h2>나의 옷장</h2>
+      <p>쇼핑몰에서 원하는 옷을 담아보세요</p>
       <div style={{
         marginTop: '1.5rem',
         display: 'grid',
@@ -80,7 +105,6 @@ function ClosetSidebar({
         ))}
       </div>
 
-      {/* 선택된 이미지 삭제 버튼 */}
       <button
         onClick={handleDeleteSelected}
         disabled={selectedIndex === null}
@@ -98,27 +122,10 @@ function ClosetSidebar({
         선택된 이미지 삭제
       </button>
 
-      {/* 입어보기 버튼 */}
-      <button
-        disabled={selectedIndex === null}
-        style={{
-          marginTop: '0.5rem',
-          width: '100%',
-          height: '3rem',
-          backgroundColor: selectedIndex !== null ? 'black' : '#ccc',
-          color: 'white',
-          border: 'none',
-          borderRadius: '4px',
-          cursor: selectedIndex !== null ? 'pointer' : 'not-allowed'
-        }}
-      >
-        입어보기
-      </button>
+      {/* 소장 의류 */}
+      <h2>소장 의류</h2>
+      <p>내가 가지고 있는 의류</p>
 
-      <h2 style={{ marginLeft: '1rem', marginBottom: '0px', marginTop: '5rem' }}>소장 의류</h2>
-      <p style={{ marginLeft: '1rem', marginTop: '0px' }}>내가 가지고 있는 의류</p>
-
-      {/* 내 옷 이미지 업로드 */}
       <label style={{
         display: 'block',
         marginTop: '1rem',
@@ -132,12 +139,12 @@ function ClosetSidebar({
         <input
           type="file"
           accept="image/*"
+          multiple
           onChange={handleMyClosetImageUpload}
           style={{ display: 'none' }}
         />
       </label>
 
-      {/* 내 옷 이미지 목록 */}
       <div style={{
         marginTop: '1rem',
         display: 'grid',
@@ -164,7 +171,6 @@ function ClosetSidebar({
         ))}
       </div>
 
-      {/* 내 옷 이미지 삭제 버튼 */}
       <button
         onClick={handleDeleteMyClosetImage}
         disabled={selectedMyClosetIndex === null}
@@ -181,25 +187,9 @@ function ClosetSidebar({
       >
         내 옷 이미지 삭제
       </button>
-
-      {/* 입어보기 버튼 */}
-      <button
-        disabled={selectedMyClosetIndex === null}
-        style={{
-          marginTop: '0.5rem',
-          width: '100%',
-          height: '3rem',
-          backgroundColor: selectedMyClosetIndex !== null ? 'black' : '#ccc',
-          color: 'white',
-          border: 'none',
-          borderRadius: '4px',
-          cursor: selectedMyClosetIndex !== null ? 'pointer' : 'not-allowed'
-        }}
-      >
-        입어보기
-      </button>
     </div>
   );
 }
 
 export default ClosetSidebar;
+
