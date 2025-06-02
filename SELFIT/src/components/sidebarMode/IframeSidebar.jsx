@@ -1,17 +1,35 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
 
 function IframeSidebar({
-  clothes, setClothes, image, setImage,
-  savedImages, setSavedImages, selectedIndex, setSelectedIndex,
+  clothes, setClothes, savedImages, setSavedImages,
   dropRef, width
 }) {
+  const [image, setImage] = useState(null);
+  const [selectedIndex, setSelectedIndex] = useState(null);
+
+  useEffect(() => {
+    const handlePaste = (e) => {
+      const items = e.clipboardData.items;
+      for (const item of items) {
+        if (item.type.indexOf('image') !== -1) {
+          const blob = item.getAsFile();
+          const url = URL.createObjectURL(blob);
+          setImage({ url, file: blob });
+        }
+      }
+    };
+
+    window.addEventListener('paste', handlePaste);
+    return () => window.removeEventListener('paste', handlePaste);
+  }, []);
 
   const handleDrop = (e) => {
     e.preventDefault();
     const file = e.dataTransfer.files[0];
     if (file && file.type.startsWith('image/')) {
       const url = URL.createObjectURL(file);
-      setImage(url);
+      setImage({ url, file });
     }
   };
 
@@ -19,10 +37,28 @@ function IframeSidebar({
     e.preventDefault();
   };
 
-  const handleSaveImage = () => {
-    if (image && savedImages.length < 15) {
-      setSavedImages(prev => [...prev, image]);
+  const handleSaveImage = async () => {
+    if (!image?.file) return;
+
+    try {
+      const formData = new FormData();
+      formData.append('file', image.file);
+
+      const type = clothes === '상의' ? 'TOP' : 'BOTTOM';
+
+      await axios.post(`http://localhost:8080/api/clothes/upload?type=${type}`, formData, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+          'Content-Type': 'multipart/form-data',
+        },
+      });
+
+      // ✅ 성공 후 미리보기 추가
+      setSavedImages(prev => [...prev, image.url]);
       setImage(null);
+    } catch (error) {
+      console.error('이미지 저장 실패', error);
+      alert('이미지 저장 실패');
     }
   };
 
@@ -30,10 +66,21 @@ function IframeSidebar({
     setSelectedIndex(prev => (prev === index ? null : index));
   };
 
-  const handleDeleteSelected = () => {
-    if (selectedIndex !== null) {
+  const handleDeleteSelected = async () => {
+    if (selectedIndex === null) return;
+
+    try {
+      await axios.delete(`http://localhost:8080/api/clothes/upload/${selectedIndex}`, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+        },
+      });
+
       setSavedImages(prev => prev.filter((_, i) => i !== selectedIndex));
       setSelectedIndex(null);
+    } catch (error) {
+      console.error('이미지 삭제 실패', error);
+      alert('이미지 삭제 실패');
     }
   };
 
@@ -53,6 +100,7 @@ function IframeSidebar({
     }}>
       <h2 style={{ marginLeft: '1rem', marginBottom: '0px' }}>옷 검색</h2>
       <p style={{ marginLeft: '1rem', marginTop: '0px' }}>의류 사이트에서 원하는 옷을 담아보세요</p>
+
       <div style={{ display: 'flex', gap: '1.5rem', width: '100%', height: '3rem' }}>
         <button
           onClick={() => setClothes('상의')}
@@ -81,6 +129,7 @@ function IframeSidebar({
           하의
         </button>
       </div>
+
       <div
         onClick={() => setImage(null)}
         ref={dropRef}
@@ -101,7 +150,7 @@ function IframeSidebar({
       >
         {image ? (
           <img
-            src={image}
+            src={image.url}
             alt="업로드된 이미지"
             style={{ maxHeight: '100%', maxWidth: '100%', objectFit: 'contain' }}
           />
@@ -174,3 +223,5 @@ function IframeSidebar({
 }
 
 export default IframeSidebar;
+
+
