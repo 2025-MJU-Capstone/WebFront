@@ -8,6 +8,24 @@ function IframeSidebar({
   const [image, setImage] = useState(null);
   const [selectedIndex, setSelectedIndex] = useState(null);
 
+  // 최초 로딩 시 저장된 이미지 목록 조회
+  useEffect(() => {
+    async function fetchSavedImages() {
+      try {
+        const response = await axios.get('http://localhost:8080/api/clothes/provide', {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem('accessToken')}`
+          }
+        });
+        const urls = response.data.map(item => item.path); // S3 URL만 뽑기
+        setSavedImages(urls);
+      } catch (error) {
+        console.error('이미지 목록 불러오기 실패', error);
+      }
+    }
+    fetchSavedImages();
+  }, []);
+
   useEffect(() => {
     const handlePaste = (e) => {
       const items = e.clipboardData.items;
@@ -37,52 +55,67 @@ function IframeSidebar({
     e.preventDefault();
   };
 
+  // 저장 (업로드)
   const handleSaveImage = async () => {
-    if (!image?.file) return;
+  if (!image?.file || !clothes) {
+    alert('카테고리를 먼저 선택하세요.');
+    return;
+  }
 
-    try {
-      const formData = new FormData();
-      formData.append('file', image.file);
+  try {
+    const formData = new FormData();
+    formData.append('file', image.file);
 
-      const type = clothes === '상의' ? 'TOP' : 'BOTTOM';
+    let type;
+    if (clothes === '상의') type = 'TOP';
+    else if (clothes === '하의') type = 'BOTTOM';
+    else if (clothes === '원피스') type = 'ONEPIECE';
 
-      await axios.post(`http://localhost:8080/api/clothes/upload?type=${type}`, formData, {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
-          'Content-Type': 'multipart/form-data',
-        },
-      });
+    const response = await axios.post(`http://localhost:8080/api/clothes/upload?type=${type}`, formData, {
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+        'Content-Type': 'multipart/form-data',
+      },
+    });
 
-      // ✅ 성공 후 미리보기 추가
-      setSavedImages(prev => [...prev, image.url]);
-      setImage(null);
-    } catch (error) {
-      console.error('이미지 저장 실패', error);
-      alert('이미지 저장 실패');
-    }
-  };
+    const s3Url = response.data.data;
+    setSavedImages(prev => [...prev, s3Url]);
+    setImage(null);
+  } catch (error) {
+    console.error('이미지 저장 실패', error);
+    alert('이미지 저장 실패');
+  }
+};
 
   const handleImageClick = (index) => {
     setSelectedIndex(prev => (prev === index ? null : index));
   };
 
-  const handleDeleteSelected = async () => {
-    if (selectedIndex === null) return;
+  // 삭제 (URL 기반)
+const handleDeleteSelected = async () => {
+  if (selectedIndex === null) return;
 
-    try {
-      await axios.delete(`http://localhost:8080/api/clothes/upload/${selectedIndex}`, {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
-        },
-      });
+  const imageUrlToDelete = savedImages[selectedIndex]; // 풀 URL 형태로 저장된 값
 
-      setSavedImages(prev => prev.filter((_, i) => i !== selectedIndex));
-      setSelectedIndex(null);
-    } catch (error) {
-      console.error('이미지 삭제 실패', error);
-      alert('이미지 삭제 실패');
-    }
-  };
+  try {
+    await axios.delete(`http://localhost:8080/api/clothes/delete`, {
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+      },
+      params: {
+        imageURL: imageUrlToDelete, // 쿼리스트링으로 보냄
+      }
+    });
+
+    setSavedImages(prev => prev.filter((_, i) => i !== selectedIndex));
+    setSelectedIndex(null);
+  } catch (error) {
+    console.error('이미지 삭제 실패', error);
+    alert('이미지 삭제 실패');
+  }
+};
+
+
 
   return (
     <div style={{
@@ -101,7 +134,7 @@ function IframeSidebar({
       <h2 style={{ marginLeft: '1rem', marginBottom: '0px' }}>옷 검색</h2>
       <p style={{ marginLeft: '1rem', marginTop: '0px' }}>의류 사이트에서 원하는 옷을 담아보세요</p>
 
-      <div style={{ display: 'flex', gap: '1.5rem', width: '100%', height: '3rem' }}>
+      <div style={{ display: 'flex', gap: '1rem', width: '100%', height: '3rem' }}>
         <button
           onClick={() => setClothes('상의')}
           style={{
@@ -127,6 +160,19 @@ function IframeSidebar({
             cursor: 'pointer'
           }}>
           하의
+        </button>
+        <button
+          onClick={() => setClothes('원피스')}
+          style={{
+            flex: 1,
+            padding: '0.5rem',
+            backgroundColor: clothes === '원피스' ? 'black' : 'white',
+            color: clothes === '원피스' ? 'white' : 'black',
+            border: 'none',
+            borderRadius: '4px',
+            cursor: 'pointer'
+          }}>
+          원피스
         </button>
       </div>
 
@@ -161,16 +207,16 @@ function IframeSidebar({
 
       <button
         onClick={handleSaveImage}
-        disabled={!image || savedImages.length >= 15}
+        disabled={!image || savedImages.length >= 15 || !clothes} // clothes 선택 안되면 비활성화
         style={{
           marginTop: '1rem',
           width: '100%',
           height: '3rem',
-          backgroundColor: image && savedImages.length < 15 ? 'black' : '#ccc',
+          backgroundColor: (image && savedImages.length < 15 && clothes) ? 'black' : '#ccc',
           color: 'white',
           border: 'none',
           borderRadius: '4px',
-          cursor: image && savedImages.length < 15 ? 'pointer' : 'not-allowed'
+          cursor: (image && savedImages.length < 15 && clothes) ? 'pointer' : 'not-allowed'
         }}
       >
         이미지 저장
@@ -223,5 +269,6 @@ function IframeSidebar({
 }
 
 export default IframeSidebar;
+
 
 
