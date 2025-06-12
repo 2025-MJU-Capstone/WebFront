@@ -56,21 +56,35 @@ const Closet = () => {
         <div style={styles.historySection}>
           <p style={styles.sectionTitle}>피팅 히스토리</p>
           <div style={styles.historyScroll}>
-            {history.map((item, i) => (
-              <div key={i} style={styles.historyItem}>
-                {item.fitted_2D_url ? (
-                  <img
-                    src={item.fitted_2D_url}
-                    alt={`피팅 ${i}`}
-                    style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '4px' }}
-                  />
-                ) : (
-                  <div style={{ ...styles.historyItem, display: 'flex', justifyContent: 'center', alignItems: 'center', color: '#888' }}>
-                    No Image
+            {history.map((modelUrl, i) => {
+              const hasModel = modelUrl && modelUrl.trim() !== "";
+
+              return (
+                <div
+                  key={i}
+                  style={{
+                    ...styles.historyItem,
+                    backgroundColor: hasModel ? '#cce5ff' : '#e5e5e5',  // 색상 변경
+                    cursor: hasModel ? 'pointer' : 'not-allowed'
+                  }}
+                  onClick={() => {
+                    if (!hasModel) return;  // 모델 없는 경우 클릭 막기
+                    localStorage.setItem('fittedModelUrl', modelUrl);
+                    window.location.reload();
+                  }}
+                >
+                  <div style={{
+                    width: '100%', height: '100%',
+                    display: 'flex',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    color: hasModel ? 'black' : '#888'
+                  }}>
+                    {hasModel ? `View ${i + 1}` : 'No model'}
                   </div>
-                )}
-              </div>
-            ))}
+                </div>
+              )
+            })}
           </div>
         </div>
       </div>
