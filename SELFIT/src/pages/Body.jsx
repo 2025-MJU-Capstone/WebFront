@@ -10,9 +10,10 @@ function Body({ height, weight, waist, leg, shoulder, pelvis, chest }) {
   const [downImage, setDownImage] = useState(null);
   const [rightImage, setRightImage] = useState(null);
   const [leftImage, setLeftImage] = useState(null);
-  const [gender, setGender] = useState(null);  // 성별 추가
+  const [gender, setGender] = useState(null);
   const [isValid, setIsValid] = useState(false);
   const [modelUrl, setModelUrl] = useState(null);
+  const [isLoading, setIsLoading] = useState(false);  
 
   const dropRef = useRef();
 
@@ -23,6 +24,14 @@ function Body({ height, weight, waist, leg, shoulder, pelvis, chest }) {
       setIsValid(false);
     }
   }, [upImage, downImage, rightImage, leftImage, gender]);
+
+
+  useEffect(() => {
+    const savedModelUrl = localStorage.getItem('modelUrl');
+    if (savedModelUrl) {
+      setModelUrl(savedModelUrl);
+    }
+  }, []);
 
   const handleDrop = (e, setImage) => {
     if (window.location.pathname.split('/').pop() !== 'body') return;
@@ -40,11 +49,10 @@ function Body({ height, weight, waist, leg, shoulder, pelvis, chest }) {
 
   const handleAnalyze = async () => {
     try {
-      const bodySizeData = {
-        height, weight, waist, leg, shoulder, pelvis, chest
-      };
-
+      const bodySizeData = { height, weight, waist, leg, shoulder, pelvis, chest };
       console.log("Body Size Data:", bodySizeData);
+
+      setIsLoading(true);  //  분석 시작할 때 로딩 시작
 
       // 1. 신체 사이즈 저장
       await axios.post('http://localhost:8080/api/body/size', bodySizeData, {
@@ -83,14 +91,30 @@ function Body({ height, weight, waist, leg, shoulder, pelvis, chest }) {
         }
       });
 
-      const modelUrl = res3D.data.data; // ApiResult<String> → 3D model URL
+      const modelUrl = res3D.data.data;
       setModelUrl(modelUrl);
+
+      //로컬 스토리지에 저장
+      localStorage.setItem('modelUrl', modelUrl);
 
       alert('신체정보, 사진 등록, 3D 모델 생성 성공!');
     } catch (error) {
       console.error(error);
       alert('업로드 실패: ' + (error.response?.data?.message || '서버 오류'));
+    } finally {
+      setIsLoading(false);  //분석 끝나면 로딩 종료
     }
+  };
+
+  // 다시 분석 버튼
+  const handleReset = () => {
+    localStorage.removeItem('modelUrl');
+    setModelUrl(null);
+    setUpImage(null);
+    setDownImage(null);
+    setRightImage(null);
+    setLeftImage(null);
+    setGender(null);
   };
 
   if (!modelUrl) {
@@ -129,7 +153,7 @@ function Body({ height, weight, waist, leg, shoulder, pelvis, chest }) {
 
           <p style={{ marginLeft: "30px" }}>전신이 다 나오는 사진을 넣어주세요.</p>
 
-          {/* 성별 선택 추가 */}
+          {/* 성별 선택 */}
           <div style={{ margin: '20px' }}>
             <p>성별을 선택하세요:</p>
             <label>
@@ -159,10 +183,10 @@ function Body({ height, weight, waist, leg, shoulder, pelvis, chest }) {
 
           <button
             className={isValid ? "btn-active" : "btn-inactive"}
-            disabled={!isValid}
+            disabled={!isValid || isLoading}
             onClick={handleAnalyze}
           >
-            실시간 분석하기
+            {isLoading ? "분석 중..." : "실시간 분석하기"}
           </button>
         </div>
       </div>
@@ -170,26 +194,37 @@ function Body({ height, weight, waist, leg, shoulder, pelvis, chest }) {
   } else {
     return (
       <div>
-        <div className="body-flex2">
-          {/* 3D 모델 보여주는 iframe */}
-          <model-viewer
-            src={`http://localhost:8080/proxy/model?url=${encodeURIComponent(modelUrl)}`}
-            alt="3D model"
-            auto-rotate
-            camera-controls
-            style={{ width: '100%', height: '600px' }}
-          />
-          <div>
-            <h2 style={{ marginTop: "0px" }}>나의 3D 체형 모델</h2>
-            <p>3D 모델링된 내 신체를 확인할 수 있어요.</p>
+        {isLoading && (
+          <div className="spinner-container">
+            <div className="spinner"></div>
+            <p>3D 모델 생성 중입니다...</p>
           </div>
-        </div>
+        )}
+        {!isLoading && (
+          <div className="body-flex2">
+            <model-viewer
+              src={`http://localhost:8080/proxy/model?url=${encodeURIComponent(modelUrl)}`}
+              alt="3D model"
+              auto-rotate
+              camera-controls
+              style={{ width: '100%', height: '600px' }}
+            />
+            <div>
+              <h2 style={{ marginTop: "0px" }}>나의 3D 체형 모델</h2>
+              <p>3D 모델링된 내 신체를 확인할 수 있어요.</p>
+              <button className="reset-btn" onClick={handleReset}>
+                다시 분석하기
+              </button>
+            </div>
+          </div>
+        )}
       </div>
     );
   }
 }
 
 export default Body;
+
 
 
 

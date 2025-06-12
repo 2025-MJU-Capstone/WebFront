@@ -1,5 +1,7 @@
 import React from 'react';
 import axios from 'axios';
+import { useNavigate } from 'react-router-dom'; // 추가
+
 
 function ClosetSidebar({
   savedImages, setSavedImages, selectedIndex, setSelectedIndex,
@@ -7,6 +9,7 @@ function ClosetSidebar({
   width
 }) {
   const token = localStorage.getItem('accessToken');
+  const navigate = useNavigate(); // 추가
 
   const handleImageClick = (index) => {
     setSelectedIndex(prev => (prev === index ? null : index));
@@ -44,7 +47,7 @@ function ClosetSidebar({
       const formData = new FormData();
       formData.append('file', file);
 
-      // 업로드 타입 입력받게 (TOP/BOTTOM/ONEPIECE 등등)
+      // 업로드 타입 입력
       const clothesType = window.prompt('옷 종류 입력 (TOP, BOTTOM, ONEPIECE)').toUpperCase();
 
       await axios.post(`http://localhost:8080/api/wardrobe/upload`, formData, {
@@ -55,7 +58,6 @@ function ClosetSidebar({
         params: { type: clothesType }
       });
 
-      // 업로드 성공 후 wardrobe 데이터 재로딩
       const res = await axios.get(`http://localhost:8080/api/wardrobe/provide`, {
         headers: { Authorization: `Bearer ${token}` }
       });
@@ -81,7 +83,6 @@ function ClosetSidebar({
           params: { imageURL: imageUrlToDelete }
         });
 
-        // 삭제 후 wardrobe 데이터 재로딩
         const res = await axios.get(`http://localhost:8080/api/wardrobe/provide`, {
           headers: { Authorization: `Bearer ${token}` }
         });
@@ -91,6 +92,37 @@ function ClosetSidebar({
       } catch (error) {
         console.error('소장 의류 삭제 실패', error);
       }
+    }
+  };
+
+  //입어보기 버튼 기능
+  const handleTryOn = async () => {
+    if (selectedIndex === null) {
+      alert('먼저 입어볼 옷을 선택하세요.');
+      return;
+    }
+
+    const clothPath = savedImages[selectedIndex];
+
+    try {
+      const res = await axios.get(`http://localhost:8080/api/fitting`, {
+        headers: {
+          Authorization: `Bearer ${token}`
+        },
+        params: { clothPath }
+      });
+
+       const fittedModelUrl = res.data;
+       localStorage.setItem('fittedModelUrl', fittedModelUrl);
+
+      // Closet 페이지로 이동
+       navigate('/closet', { replace: true });
+        setTimeout(() => {
+          window.location.reload();
+        }, 100);
+    } catch (error) {
+      console.error('가상 피팅 실패', error);
+      alert('가상 피팅에 실패했습니다.');
     }
   };
 
@@ -152,6 +184,24 @@ function ClosetSidebar({
         }}
       >
         선택된 이미지 삭제
+      </button>
+
+      {/* 입어보기 버튼 */}
+      <button
+        onClick={handleTryOn}
+        disabled={selectedIndex === null}
+        style={{
+          marginTop: '0.5rem',
+          width: '100%',
+          height: '3rem',
+          backgroundColor: selectedIndex !== null ? 'black' : '#ccc',
+          color: 'white',
+          border: 'none',
+          borderRadius: '4px',
+          cursor: selectedIndex !== null ? 'pointer' : 'not-allowed'
+        }}
+      >
+        입어보기
       </button>
 
       {/* 소장 의류 */}
@@ -223,5 +273,6 @@ function ClosetSidebar({
 }
 
 export default ClosetSidebar;
+
 
 
