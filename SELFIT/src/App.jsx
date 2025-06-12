@@ -37,7 +37,7 @@ function PrivateRoute({ children, setMode }) {
 }
 
 function App() {
-  const [mode, setMode] = useState('main')
+  const [mode, setMode] = useState(() => localStorage.getItem('mode') || 'main');
   const [url, setUrl] = useState('')
   const [inputValue, setInputValue] = useState('')
   const [settingTab, setSettingTab] = useState('member');
@@ -51,6 +51,11 @@ function App() {
   const [pelvis, setPelvis] = useState('');
   const [chest, setChest] = useState('');
 
+  const changeMode = (newMode) => {
+    setMode(newMode);
+    localStorage.setItem('mode', newMode);
+  };
+
   // 자동 로그인 유지
   useEffect(() => {
     const token = localStorage.getItem('accessToken');
@@ -62,7 +67,7 @@ function App() {
   return (
     <BrowserRouter>
       <div style={{ display: 'flex', height: '100vh', width: '100vw' }}>
-        <LeftSidebar setMode={setMode} />
+        <LeftSidebar setMode={changeMode} />
         <DynamicSidebar
           mode={mode}
           setUrl={setUrl}
@@ -91,9 +96,9 @@ function App() {
           <Route path="/signUp" element={<SignUp />} />
           <Route path="/" element={<Main mode={mode} inputValue={inputValue} />} />
           {/* 로그인한 사용자만 접근 가능 */}
-          <Route path="/store" element={<PrivateRoute setMode={setMode}><Store url={url} setUrl={setUrl} /></PrivateRoute>} />
-          <Route path="/closet" element={<PrivateRoute setMode={setMode}><Closet mode={mode} /></PrivateRoute>} />
-          <Route path="/body" element={<PrivateRoute setMode={setMode}><Body 
+          <Route path="/store" element={<PrivateRoute setMode={changeMode}><Store url={url} setUrl={setUrl} /></PrivateRoute>} />
+          <Route path="/closet" element={<PrivateRoute setMode={changeMode}><Closet mode={mode} /></PrivateRoute>} />
+          <Route path="/body" element={<PrivateRoute setMode={changeMode}><Body 
                 height={height}
                 weight={weight}
                 waist={waist}
